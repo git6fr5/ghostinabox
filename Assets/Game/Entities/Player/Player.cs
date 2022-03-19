@@ -25,6 +25,7 @@ public class Player : Controller {
     [SerializeField] protected float floatSpeed = 1f;
 
     public Corpse corpse;
+    public BoxCollider2D ghostbox;
 
     /* --- Overridden Methods --- */
     // Runs the thinking logic.
@@ -45,6 +46,10 @@ public class Player : Controller {
     protected override void Move(float deltaTime) {
         if (alive) {
             base.Move(deltaTime);
+            if (body.velocity.y < 0f && airborneFlag == Airborne.Grounded) {
+                body.velocity = new Vector2(body.velocity.x, 0f);
+            }
+
             if (body.velocity.y < -20f) {
                 body.velocity = new Vector2(body.velocity.x, -20f);
             }
@@ -88,7 +93,8 @@ public class Player : Controller {
         if (!alive) {
             respawnTicks += Time.deltaTime;
             if (respawnTicks > respawnTimer) {
-                Respawn();
+                think = false;
+                StartCoroutine(IERespawn());
             }
         }
         if (alive) {
@@ -106,13 +112,22 @@ public class Player : Controller {
 
         corpse.gameObject.SetActive(true);
         // corpse.body.velocity = -body.velocity.normalized * 0.5f;
+        ghostbox.enabled = true;
+    }
+
+    private IEnumerator IERespawn() {
+        yield return new WaitForSeconds(0.5f);
+        Respawn();
     }
 
     public void Respawn() {
         alive = true;
+        think = true;
         GameRules.GravityScale = 1f;
         transform.position = corpse.transform.position;
         corpse.gameObject.SetActive(false);
+
+        ghostbox.enabled = false;
     }
 
     /* --- Debug --- */

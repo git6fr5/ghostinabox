@@ -8,13 +8,13 @@ using UnityEngine;
 /// </summary>
 [RequireComponent(typeof(SpriteRenderer))]
 [RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(CircleCollider2D))]
+[RequireComponent(typeof(BoxCollider2D))]
 public class Pole : MonoBehaviour {
 
 
     /* --- Components --- */
     private SpriteRenderer spriteRenderer;
-    private CircleCollider2D hitbox;
+    private BoxCollider2D hitbox;
     private Rigidbody2D body;
     public Rope rope;
 
@@ -29,7 +29,7 @@ public class Pole : MonoBehaviour {
     private void Start() {
         // Cache these components
         spriteRenderer = GetComponent<SpriteRenderer>();
-        hitbox = GetComponent<CircleCollider2D>();
+        hitbox = GetComponent<BoxCollider2D>();
         body = GetComponent<Rigidbody2D>();
 
         // Set up the components
@@ -56,14 +56,14 @@ public class Pole : MonoBehaviour {
     private void Freeze() {
         body.constraints = RigidbodyConstraints2D.FreezeAll;
         body.gravityScale = 0f;
-        body.angularDrag = 0f;
+        body.angularDrag = 5f;
         released = false;
     }
 
     private void Release() {
         body.constraints = RigidbodyConstraints2D.None;
         body.gravityScale = 0f;
-        body.angularDrag = 0f;
+        body.angularDrag = 5f;
         released = true;
     }
 

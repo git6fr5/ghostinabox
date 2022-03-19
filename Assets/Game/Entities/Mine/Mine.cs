@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Mine : MonoBehaviour
 {
+    public AudioSource audioSource;
+    public AudioClip explosionAudio;
 
     public SpriteRenderer spriteRenderer;
     public Particle explosion;
@@ -24,6 +26,10 @@ public class Mine : MonoBehaviour
         GameRules.MainPlayer.Kill(transform.position);
         explosion.Create(transform.position);
         Destroy(gameObject);
+        Screen.CameraShake(0.15f, 0.35f);
+
+        //audioSource.clip = explosionAudio;
+        //audioSource.Play();
 
         exploded = true;
     }

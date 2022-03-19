@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering.Universal;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 /// <summary>
 /// Screen.
@@ -14,6 +15,8 @@ public class Screen : MonoBehaviour {
 
     /* --- Variables --- */
     #region Variables
+
+    public static Screen Instance;
 
     // Components.
     [HideInInspector] public Camera mainCamera;
@@ -27,11 +30,29 @@ public class Screen : MonoBehaviour {
     public Volume volume;
     public VolumeProfile volumeProfileA;
     public VolumeProfile volumeProfileB;
+    public VolumeProfile volumeProfileC;
+
+    public LensDistortion lensA;
+    public LensDistortion lensB;
+    public ChromaticAberration chroma;
+    public AnimationCurve chromaCurve;
+
+    public DepthOfField depthOfField;
+    public AnimationCurve depthCurve;
 
     public bool alive;
 
     public Vector2 offset;
     public Vector2 bounds;
+
+    Vector3 origin;
+
+    [Header("Shake")]
+    public AnimationCurve curve;
+    [SerializeField, ReadOnly] public float shakeStrength = 1f;
+    [SerializeField, ReadOnly] public float shakeDuration = 0.5f;
+    [SerializeField, ReadOnly] float elapsedTime = 0f;
+    [SerializeField, ReadOnly] public bool shake;
 
     #endregion
 
@@ -44,14 +65,30 @@ public class Screen : MonoBehaviour {
     }
 
     void Update() {
+        transform.position = origin;
+
         if (GameRules.MainPlayer.Alive) {
             volume.sharedProfile = volumeProfileA;
             // SetPosition();
+            lensA.intensity.value = 0f; 
             OutOfBounds(true);
         }
         else {
             volume.sharedProfile = volumeProfileB;
             OutOfBounds();
+
+            lensB.intensity.value = 0.5f * chromaCurve.Evaluate(GameRules.MainPlayer.RespawnRatio);
+            chroma.intensity.value = 1f * chromaCurve.Evaluate(GameRules.MainPlayer.RespawnRatio);
+        }
+
+        if (GameRules.Resetting) {
+            // volume.sharedProfile = volumeProfileC;
+            lensA.intensity.value = 1f * depthCurve.Evaluate(GameRules.ResetTicks);
+            lensB.intensity.value = 1f * depthCurve.Evaluate(GameRules.ResetTicks);
+        }
+
+        if (shake) {
+            shake = Shake();
         }
     }
 
@@ -89,11 +126,43 @@ public class Screen : MonoBehaviour {
 
         if (GameRules.MainPlayer.transform.position != position) {
             if (reset) {
-                GameRules.ResetLevel();
+                GameRules.Resetting = true;
+                GameRules.OverrideManualReset = true;
             }
             else {
                 GameRules.MainPlayer.transform.position = position;
             }
+        }
+
+        if (GameRules.MainPlayer.transform.position == position && GameRules.OverrideManualReset) {
+            GameRules.Resetting = false;
+            GameRules.OverrideManualReset = false;
+        }
+    }
+
+    public bool Shake() {
+        elapsedTime += Time.deltaTime;
+        if (elapsedTime >= shakeDuration) {
+            elapsedTime = 0f;
+            return false;
+        }
+        float strength = shakeStrength * curve.Evaluate(elapsedTime / shakeDuration);
+        transform.position += (Vector3)Random.insideUnitCircle * strength;
+        return true;
+    }
+
+    public static void CameraShake(float strength, float duration) {
+        if (strength == 0f) {
+            return;
+        }
+        if (!Instance.shake) {
+            Instance.shakeStrength = strength;
+            Instance.shakeDuration = duration;
+            Instance.shake = true;
+        }
+        else {
+            Instance.shakeStrength = Mathf.Max(Instance.shakeStrength, strength);
+            Instance.shakeDuration = Mathf.Max(Instance.shakeDuration, Instance.elapsedTime + duration);
         }
     }
 
@@ -107,6 +176,15 @@ public class Screen : MonoBehaviour {
         mainCamera = GetComponent<Camera>();
         volume.sharedProfile = null;
         Size = screenSize;
+        origin = transform.position;
+
+        volumeProfileA.TryGet<LensDistortion>(out lensA);
+        volumeProfileB.TryGet<LensDistortion>(out lensB);
+        volumeProfileB.TryGet<ChromaticAberration>(out chroma);
+        volumeProfileC.TryGet<DepthOfField>(out depthOfField);
+
+        Instance = this;
+
     }
 
     #endregion

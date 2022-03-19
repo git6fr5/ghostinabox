@@ -37,6 +37,8 @@ public class GameRules : MonoBehaviour {
     /* --- Debug --- */
     [SerializeField] private float timeScale;
 
+    public static float Ticks;
+
     /* --- Unity --- */
     // Runs once before the first frame.
     void Start() {
@@ -55,6 +57,7 @@ public class GameRules : MonoBehaviour {
         CheckReset();
 
         Time.timeScale = timeScale;
+        Ticks += Time.deltaTime;
 
     }
 
@@ -78,33 +81,60 @@ public class GameRules : MonoBehaviour {
         return true;
     }
 
+    
+
+    public GameObject reset;
+
+    public static float ResetTicks;
+    public static bool Resetting;
+    public static bool OverrideManualReset;
+
+    private void CheckReset() {
+        if (Resetting) {
+            ResetTicks += 0.01f;
+            if (ResetTicks >= 1f) {
+                ResetLevel();
+            }
+        }
+        else {
+            ResetTicks = 0f;
+        }
+
+        //if (reset.activeSelf) {
+        //    timeScale = 0f;
+        //}
+        //else {
+        //    timeScale = 1f;
+        //}
+
+        if (!OverrideManualReset) {
+            if (Input.GetKeyDown(KeyCode.R)) {
+                //if (reset.activeSelf) {
+                //    Resetting = true;
+                //}
+                //reset.SetActive(!reset.activeSelf);
+                Resetting = true;
+            }
+            if (Input.GetKeyUp(KeyCode.R)) {
+                //if (reset.activeSelf) {
+                //    Resetting = true;
+                //}
+                //reset.SetActive(!reset.activeSelf);
+                Resetting = false;
+            }
+        }
+        
+    }
+
     public static void NextLevel() {
         if (MainLoader != null) {
             if (MainLoader.GetLevelByID(MainLoader.lDtkData, MainLoader.id + 1) != null) {
                 MainLoader.id += 1;
             }
-            MainLoader.load = true;
+            ResetLevel();
         }
         else {
             print("Resetting Level");
-        }
-    }
-
-    public GameObject reset;
-
-    private void CheckReset() {
-        if (reset.activeSelf) {
-            timeScale = 0f;
-        }
-        else {
-            timeScale = 1f;
-        }
-
-        if (Input.GetKeyDown(KeyCode.R)) {
-            if (reset.activeSelf) {
-                ResetLevel();
-            }
-            reset.SetActive(!reset.activeSelf);
         }
     }
 
@@ -118,6 +148,10 @@ public class GameRules : MonoBehaviour {
         else {
             print("Resetting Level");
         }
+        Screen.CameraShake(0.1f, 0.25f);
+        Resetting = false;
+        OverrideManualReset = false;
     }
+
 
 }

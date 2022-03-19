@@ -54,7 +54,9 @@ public class LevelLoader : MonoBehaviour {
         }
     }
 
+    public AudioSource audioSource;
     public void Load() {
+        audioSource.Play();
         ResetLevel(level);
         OpenLevel(id);
         GameRules.Init();
@@ -97,6 +99,10 @@ public class LevelLoader : MonoBehaviour {
     }
 
     private void ResetLevel(Level level) {
+
+        if (GameRules.MainPlayer != null) {
+            Destroy(GameRules.MainPlayer.corpse.gameObject);
+        }
 
         if (level.entities != null) {
             print("Resetting Entities");

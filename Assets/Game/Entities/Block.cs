@@ -14,6 +14,7 @@ public class Block : MonoBehaviour {
     void Start() {
         box = GetComponent<BoxCollider2D>();
         body = GetComponent<Rigidbody2D>();
+        body.angularDrag = 0.05f;
         Freeze();
     }
 
@@ -24,6 +25,7 @@ public class Block : MonoBehaviour {
         else {
             Freeze();
         }
+        body.velocity *= 0.99f;
     }
 
     protected virtual void Release() {
