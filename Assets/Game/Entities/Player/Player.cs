@@ -102,10 +102,10 @@ public class Player : Controller {
         body.velocity = (transform.position - origin).normalized * force;
 
         corpse.transform.position = transform.position;
-        transform.position += 1f * (Vector3)body.velocity.normalized;
+        transform.position += 1.25f * (Vector3)body.velocity.normalized;
 
         corpse.gameObject.SetActive(true);
-        // corpse.body.velocity = body.velocity.normalized;
+        // corpse.body.velocity = -body.velocity.normalized * 0.5f;
     }
 
     public void Respawn() {

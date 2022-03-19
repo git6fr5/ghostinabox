@@ -14,6 +14,8 @@ public class Corpse : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        transform.eulerAngles += Vector3.forward * 90f * Time.deltaTime;
+        body.velocity = Vector3.up * 0.05f;
         body.velocity *= 0.95f;
     }
 }
