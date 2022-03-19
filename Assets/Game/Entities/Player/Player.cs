@@ -24,6 +24,8 @@ public class Player : Controller {
 
     [SerializeField] protected float floatSpeed = 1f;
 
+    public Corpse corpse;
+
     /* --- Overridden Methods --- */
     // Runs the thinking logic.
     protected override void Think() {
@@ -81,6 +83,8 @@ public class Player : Controller {
     }
 
     private void CheckDeath() {
+        corpse.transform.parent = null;
+
         if (!alive) {
             respawnTicks += Time.deltaTime;
             if (respawnTicks > respawnTimer) {
@@ -96,11 +100,19 @@ public class Player : Controller {
         alive = false;
         GameRules.GravityScale = 0f;
         body.velocity = (transform.position - origin).normalized * force;
+
+        corpse.transform.position = transform.position;
+        transform.position += 1f * (Vector3)body.velocity.normalized;
+
+        corpse.gameObject.SetActive(true);
+        // corpse.body.velocity = body.velocity.normalized;
     }
 
     public void Respawn() {
         alive = true;
         GameRules.GravityScale = 1f;
+        transform.position = corpse.transform.position;
+        corpse.gameObject.SetActive(false);
     }
 
     /* --- Debug --- */

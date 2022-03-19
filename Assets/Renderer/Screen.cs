@@ -46,7 +46,8 @@ public class Screen : MonoBehaviour {
     void Update() {
         if (GameRules.MainPlayer.Alive) {
             volume.sharedProfile = volumeProfileA;
-            SetPosition();
+            // SetPosition();
+            OutOfBounds(true);
         }
         else {
             volume.sharedProfile = volumeProfileB;
@@ -68,7 +69,7 @@ public class Screen : MonoBehaviour {
     }
 
     /* --- Static Methods --- */
-    private void OutOfBounds() {
+    private void OutOfBounds(bool reset = false) {
         Vector3 position = GameRules.MainPlayer.transform.position;
         Vector3 cameraPosition = transform.position;
 
@@ -87,7 +88,12 @@ public class Screen : MonoBehaviour {
         }
 
         if (GameRules.MainPlayer.transform.position != position) {
-            GameRules.MainPlayer.transform.position = position;
+            if (reset) {
+                GameRules.ResetLevel();
+            }
+            else {
+                GameRules.MainPlayer.transform.position = position;
+            }
         }
     }
 
