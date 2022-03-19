@@ -680,7 +680,7 @@ MonoBehaviour:
   lDtkData: {fileID: -3936420473582383976, guid: ec14fab37602cf743aa5d116bd444c1e, type: 3}
   level: {fileID: 499966049}
   load: 1
-  id: 2
+  id: 3
   audioSource: {fileID: 499966051}
 --- !u!114 &499966049
 MonoBehaviour:
