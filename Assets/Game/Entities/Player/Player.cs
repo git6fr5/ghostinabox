@@ -113,6 +113,9 @@ public class Player : Controller {
         corpse.gameObject.SetActive(true);
         // corpse.body.velocity = -body.velocity.normalized * 0.5f;
         ghostbox.enabled = true;
+
+        Environment.SwitchMusic(false);
+
     }
 
     private IEnumerator IERespawn() {
@@ -128,6 +131,8 @@ public class Player : Controller {
         corpse.gameObject.SetActive(false);
 
         ghostbox.enabled = false;
+
+        Environment.SwitchMusic(true);
     }
 
     /* --- Debug --- */

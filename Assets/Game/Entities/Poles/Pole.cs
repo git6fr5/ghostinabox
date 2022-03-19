@@ -103,16 +103,27 @@ public class Pole : MonoBehaviour {
         }
     }
 
+    private Pole cachedTarget;
+
     private void Connect() {
-        if (targetPoint == null) {
-            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, rope.ropeLength);
-            for (int i = 0; i < colliders.Length; i++) {
-                if (colliders[i].GetComponent<Pole>() && colliders[i].GetComponent<Pole>() != this) {
-                    targetPoint = colliders[i].GetComponent<Pole>();
-                }
-            }
+        if (cachedTarget != null) {
+            targetPoint = cachedTarget;
+            CheckRope();
+            return;
         }
-        CheckRope();
+
+        //if (targetPoint == null) {
+        //    Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, rope.ropeLength);
+        //    for (int i = 0; i < colliders.Length; i++) {
+        //        if (colliders[i].GetComponent<Pole>() && colliders[i].GetComponent<Pole>() != this) {
+        //            targetPoint = colliders[i].GetComponent<Pole>();
+        //        }
+        //    }
+        //}
+    }
+
+    public void Connect(Pole target) {
+        cachedTarget = target;
     }
 
 }

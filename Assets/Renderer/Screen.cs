@@ -32,12 +32,15 @@ public class Screen : MonoBehaviour {
     public VolumeProfile volumeProfileB;
     public VolumeProfile volumeProfileC;
 
-    public LensDistortion lensA;
-    public LensDistortion lensB;
+    //public LensDistortion lensA;
+    //public LensDistortion lensB;
     public ChromaticAberration chroma;
     public AnimationCurve chromaCurve;
 
-    public DepthOfField depthOfField;
+    public Vignette vignette;
+    public WhiteBalance whiteBalance;
+
+    // public DepthOfField depthOfField;
     public AnimationCurve depthCurve;
 
     public bool alive;
@@ -70,21 +73,37 @@ public class Screen : MonoBehaviour {
         if (GameRules.MainPlayer.Alive) {
             volume.sharedProfile = volumeProfileA;
             // SetPosition();
-            lensA.intensity.value = 0f; 
+            // lensA.intensity.value = 0f; 
+
             OutOfBounds(true);
         }
         else {
             volume.sharedProfile = volumeProfileB;
             OutOfBounds();
 
-            lensB.intensity.value = 0.5f * chromaCurve.Evaluate(GameRules.MainPlayer.RespawnRatio);
+            // lensB.intensity.value = 0.5f * chromaCurve.Evaluate(GameRules.MainPlayer.RespawnRatio);
             chroma.intensity.value = 1f * chromaCurve.Evaluate(GameRules.MainPlayer.RespawnRatio);
         }
 
+        volume.sharedProfile.TryGet<Vignette>(out vignette);
+        volume.sharedProfile.TryGet<WhiteBalance>(out whiteBalance);
+
+        vignette.intensity.value = 0f;
+        whiteBalance.tint.value = 0f;
+
         if (GameRules.Resetting) {
             // volume.sharedProfile = volumeProfileC;
-            lensA.intensity.value = 1f * depthCurve.Evaluate(GameRules.ResetTicks);
-            lensB.intensity.value = 1f * depthCurve.Evaluate(GameRules.ResetTicks);
+            // lensA.intensity.value = 1f * depthCurve.Evaluate(GameRules.ResetTicks);
+            // lensB.intensity.value = 1f * depthCurve.Evaluate(GameRules.ResetTicks);
+
+            Vector2 pos = Vector2.zero;
+            pos.x = (GameRules.MainPlayer.transform.position.x - transform.position.x + screenSize.x / 2f) / screenSize.x;
+            pos.y = (GameRules.MainPlayer.transform.position.y - transform.position.y + screenSize.y / 2f) / screenSize.y;
+
+            vignette.center.value = pos;// Vector2(0.5f, 0.5f);
+
+            vignette.intensity.value = 1f * depthCurve.Evaluate(GameRules.ResetTicks);
+            whiteBalance.tint.value = -105f * depthCurve.Evaluate(GameRules.ResetTicks);
         }
 
         if (shake) {
@@ -110,17 +129,17 @@ public class Screen : MonoBehaviour {
         Vector3 position = GameRules.MainPlayer.transform.position;
         Vector3 cameraPosition = transform.position;
 
-        if (position.x < cameraPosition.x - screenSize.x / 2f - GameRules.MovementPrecision) {
+        if (position.x < cameraPosition.x - screenSize.x / 2f - 0.5f - GameRules.MovementPrecision) {
             position.x += screenSize.x;
         }
-        if (position.x > cameraPosition.x + screenSize.x / 2f + GameRules.MovementPrecision) {
+        if (position.x > cameraPosition.x + screenSize.x / 2f + 0.5f + GameRules.MovementPrecision) {
             position.x -= screenSize.x;
         }
 
-        if (position.y < cameraPosition.y - screenSize.y / 2f - GameRules.MovementPrecision) {
+        if (position.y < cameraPosition.y - screenSize.y / 2f - 0.5f - GameRules.MovementPrecision) {
             position.y += screenSize.y;
         }
-        if (position.y > cameraPosition.y + screenSize.y / 2f + GameRules.MovementPrecision) {
+        if (position.y > cameraPosition.y + screenSize.y / 2f + 0.5f + GameRules.MovementPrecision) {
             position.y -= screenSize.y;
         }
 
@@ -178,10 +197,12 @@ public class Screen : MonoBehaviour {
         Size = screenSize;
         origin = transform.position;
 
-        volumeProfileA.TryGet<LensDistortion>(out lensA);
-        volumeProfileB.TryGet<LensDistortion>(out lensB);
+        //volumeProfileA.TryGet<LensDistortion>(out lensA);
+        //volumeProfileB.TryGet<LensDistortion>(out lensB);
         volumeProfileB.TryGet<ChromaticAberration>(out chroma);
-        volumeProfileC.TryGet<DepthOfField>(out depthOfField);
+
+        volumeProfileA.TryGet<Vignette>(out vignette);
+        volumeProfileA.TryGet<WhiteBalance>(out whiteBalance);
 
         Instance = this;
 

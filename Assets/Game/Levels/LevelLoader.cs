@@ -94,6 +94,7 @@ public class LevelLoader : MonoBehaviour {
             List<LDtkTileData> entityData = LoadLayer(ldtkLevel, GhostLayer, gridSize);
             List<Entity> entityList = level.environment.entities;
             level.entities = LoadEntities(entityData, entityList);
+            Order(ref level.entities, ldtkLevel);
         }
 
     }
@@ -178,6 +179,40 @@ public class LevelLoader : MonoBehaviour {
             }
         }
         return entities;
+    }
+
+    private void Order(ref List<Entity> entities, LDtkLevel ldtkLevel) {
+
+        List<LDtkTileData> orderData = LoadLayer(ldtkLevel, "Controls", 16);
+
+        Pole[] poles = new Pole[6];
+
+        for (int i = 0; i < entities.Count; i++) {
+            if (entities[i].GetComponent<Pole>() != null) {
+
+                Pole pole = entities[i].GetComponent<Pole>();
+                int id = -1;
+                for (int j = 0; j < orderData.Count; j++) {
+                    if (orderData[j].gridPosition == entities[i].gridPosition) {
+                        id = orderData[j].vectorID.x;
+                    }
+                }
+
+                if (id != -1 && id < 6) {
+                    poles[id] = pole;
+                }
+
+            }
+        }
+
+        for (int i = 0; i < poles.Length; i+=2) {
+            if (poles[i] != null && poles[i + 1] != null) {
+                poles[i].Connect(poles[i + 1]);
+                poles[i + 1].Connect(poles[i]);
+            }
+        }
+
+
     }
 
 }

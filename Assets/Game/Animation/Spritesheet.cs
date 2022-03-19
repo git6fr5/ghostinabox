@@ -81,6 +81,10 @@ public class Spritesheet : MonoBehaviour {
             frameRate *= 0.25f;
             return deadAnimation;
         }
+        else if (controller.GetComponent<Chicken>() != null && !controller.GetComponent<Chicken>().Alive) {
+            frameRate *= 0.25f;
+            return deadAnimation;
+        }
         else if (controller.airborneFlag != Controller.Airborne.Grounded) {
             switch (controller.airborneFlag) {
                 case Controller.Airborne.Rising:
@@ -136,6 +140,13 @@ public class Spritesheet : MonoBehaviour {
                 Player player = controller.GetComponent<Player>();
                 if (!player.Alive) {
                     AfterImage(3 * duration, (1f - player.RespawnRatio) / 2f);
+                }
+            }
+            else if (controller != null && controller.GetComponent<Chicken>() != null) {
+                duration = 0.3f;
+                Chicken chicken = controller.GetComponent<Chicken>();
+                if (!chicken.Alive) {
+                    AfterImage(3 * duration, (1f - GameRules.MainPlayer.RespawnRatio) / 2f);
                 }
             }
             yield return new WaitForSeconds(duration);

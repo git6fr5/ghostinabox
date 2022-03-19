@@ -63,6 +63,7 @@ public class GameRules : MonoBehaviour {
 
     /* --- Methods --- */
     public static void Init() {
+        Physics2D.queriesHitTriggers = false;
         MainPlayer = (Player)GameObject.FindObjectOfType(typeof(Player));
         MainLoader = (LevelLoader)GameObject.FindObjectOfType(typeof(LevelLoader));
         MainCamera = Camera.main;
@@ -88,8 +89,14 @@ public class GameRules : MonoBehaviour {
     public static float ResetTicks;
     public static bool Resetting;
     public static bool OverrideManualReset;
+    public static bool SoulBeenEaten;
 
     private void CheckReset() {
+
+        if (SoulBeenEaten) {
+            Resetting = true;
+        }
+
         if (Resetting) {
             ResetTicks += 0.01f;
             if (ResetTicks >= 1f) {
@@ -151,6 +158,8 @@ public class GameRules : MonoBehaviour {
         Screen.CameraShake(0.1f, 0.25f);
         Resetting = false;
         OverrideManualReset = false;
+        SoulBeenEaten = false;
+
     }
 
 
